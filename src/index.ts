@@ -59,7 +59,7 @@ class NagadGateway {
 			signature,
 		};
 
-		let newIP = ip === '::1' ? '118.179.174.202' : ip;
+		const newIP = ip === '::1' ? '118.179.174.202' : ip;
 		const response = await post<INagadCreatePaymentResponse>(endpoint, payload, {
 			...this.headers,
 			'X-KM-IP-V4': newIP,
@@ -80,7 +80,7 @@ class NagadGateway {
 		return callBackUrl;
 	}
 
-	handleCallBack = (_query: any) => {
+	handleCallBack = (): void => {
 		//todo
 	};
 
@@ -109,7 +109,7 @@ class NagadGateway {
 				...productDetails,
 			},
 		};
-		let newIP = ip === '::1' || ip === '127.0.0.1' ? '103.100.102.100' : ip;
+		const newIP = ip === '::1' || ip === '127.0.0.1' ? '103.100.102.100' : ip;
 		return (await post)<INagadPaymentURL>(
 			`${this.baseURL}/remote-payment-gateway-1.0/api/dfs/check-out/complete/${paymentReferenceId}`,
 			payload,
