@@ -14,7 +14,7 @@ export function get<T>(url: string, additionalHeaders: IHeaders): Promise<T> {
 			Accept: 'application/json',
 			...additionalHeaders,
 		},
-	}).then(r => r.json());
+	}).then((r) => r.json());
 }
 
 export function post<T>(url: string, payload: IPayload = {}, additionalHeaders: IHeaders): Promise<T> {
@@ -26,5 +26,5 @@ export function post<T>(url: string, payload: IPayload = {}, additionalHeaders: 
 		},
 		body: JSON.stringify(payload),
 		method: 'POST',
-	}).then(r => r.json());
+	}).then((r) => r.json());
 }

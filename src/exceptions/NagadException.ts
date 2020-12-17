@@ -1,7 +1,7 @@
-export class BkashException extends Error {
+export class NagadException extends Error {
 	constructor(message: string) {
 		super(message);
-		this.name = 'BkashException';
+		this.name = 'NagadException';
 		this.stack = this.stack ?? new Error().stack;
 	}
 }

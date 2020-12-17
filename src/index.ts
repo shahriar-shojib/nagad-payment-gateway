@@ -85,10 +85,7 @@ class NagadGateway {
 	};
 
 	verifyPayment = (paymentRefID: string): Promise<INagadPaymentVerificationResponse> => {
-		return get<INagadPaymentVerificationResponse>(
-			`${this.baseURL}/api/dfs/verify/payment/${paymentRefID}`,
-			this.headers
-		);
+		return get<INagadPaymentVerificationResponse>(`${this.baseURL}/api/dfs/verify/payment/${paymentRefID}`, this.headers);
 	};
 
 	private confirmPayment = async (data: IConfirmPaymentArgs): Promise<INagadPaymentURL> => {
@@ -130,10 +127,7 @@ class NagadGateway {
 
 	private decrypt = <T>(data: string): T => {
 		const decrtypted = crypto
-			.privateDecrypt(
-				{ key: this.privKey, padding: crypto.constants.RSA_PKCS1_PADDING },
-				Buffer.from(data, 'base64')
-			)
+			.privateDecrypt({ key: this.privKey, padding: crypto.constants.RSA_PKCS1_PADDING }, Buffer.from(data, 'base64'))
 			.toString();
 		return JSON.parse(decrtypted);
 	};
@@ -167,4 +161,4 @@ class NagadGateway {
 // // 	.catch(console.log);
 // // // console.log(nagad.date());
 
-exports = NagadGateway;
+export = NagadGateway;
