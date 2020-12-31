@@ -1,4 +1,5 @@
-import crypto from 'crypto';
+import * as crypto from 'crypto';
+import * as fs from 'fs';
 import { post, get } from './utils/request';
 import { IHeaders } from './interfaces/headers.interface';
 
@@ -26,20 +27,39 @@ class NagadGateway {
 	private readonly headers: IHeaders;
 	private readonly callbackURL: string;
 	constructor(config: INagadConstructor) {
-		const { baseURL, callbackURL, merchantID, merchantNumber, privKey, pubKey, apiVersion } = config;
+		const { baseURL, callbackURL, merchantID, merchantNumber, privKey, apiVersion } = config;
 		this.baseURL = baseURL;
 		this.merchantID = merchantID;
 		this.merchantNumber = merchantNumber;
-		this.pubKey = pubKey;
-		this.privKey = privKey;
 		this.headers = {
 			'X-KM-Api-Version': apiVersion,
 		};
 		this.callbackURL = callbackURL;
+		const { privateKey, publicKey } = this.genKeys(fs.readFileSync(privKey, { encoding: 'utf-8' }));
+		this.privKey = privateKey;
+		this.pubKey = publicKey;
 	}
 
+	/**
+	 * ## Initiate a Payment from nagad
+	 *
+	 * @param createPaymentConfig Arguments for payment creation
+	 * @example
+	 * ```javascript
+	 * const paymentConfig: ICreatePaymentArgs = {
+	 *   amount: '100',
+	 *   ip: '10.10.0.10',
+	 *   orderId: '12111243GD',
+	 *   productDetails: { a: '1', b: '2' },
+	 *   clientType: 'PC_WEB',
+	 * };
+	 * const paymentURL = await nagad .createPayment(paymentConfig);
+	 * ```
+	 * @returns {String} Payment URL for nagad
+	 *
+	 */
 	async createPayment(createPaymentConfig: ICreatePaymentArgs): Promise<string> {
-		const { amount, ip, orderId, productDetails } = createPaymentConfig;
+		const { amount, ip, orderId, productDetails, clientType } = createPaymentConfig;
 		const endpoint = `${this.baseURL}/remote-payment-gateway-1.0/api/dfs/check-out/initialize/${this.merchantID}/${orderId}`;
 		const timestamp = this.date();
 
@@ -59,12 +79,14 @@ class NagadGateway {
 			signature,
 		};
 
-		const newIP = ip === '::1' ? '118.179.174.202' : ip;
+		const newIP = ip === '::1' ? '103.100.200.100' : ip;
+		console.log(payload);
 		const response = await post<INagadCreatePaymentResponse>(endpoint, payload, {
 			...this.headers,
 			'X-KM-IP-V4': newIP,
+			'X-KM-Client-Type': clientType,
 		});
-
+		console.log(response);
 		const decrypted = this.decrypt<INagadCreatePaymentDecryptedResponse>(response.sensitiveData);
 		const { paymentReferenceId, challenge } = decrypted;
 		const confirmArgs: IConfirmPaymentArgs = {
@@ -131,6 +153,7 @@ class NagadGateway {
 			.toString();
 		return JSON.parse(decrtypted);
 	};
+
 	private sign = (data: string | Record<string, string>): string => {
 		const signerObject = crypto.createSign('SHA256');
 		signerObject.update(JSON.stringify(data));
@@ -138,6 +161,7 @@ class NagadGateway {
 		const signed = signerObject.sign(this.privKey, 'base64');
 		return signed;
 	};
+
 	private date = (): string => {
 		const now = new Date(Date.now());
 		const day = `${now.getDate()}`.length === 1 ? `0${now.getDate()}` : `${now.getDate()}`;
@@ -146,19 +170,24 @@ class NagadGateway {
 		const second = `${now.getSeconds()}`.length === 1 ? `0${now.getSeconds()}` : `${now.getSeconds()}`;
 		return `${now.getFullYear()}${now.getMonth() + 1}${day}${hour}${minute}${second}`;
 	};
+
 	private createHash = (string: string): string => {
 		return crypto.createHash('sha1').update(string).digest('hex').toUpperCase();
 	};
+
+	private genKeys = (privKey: string): { publicKey: string; privateKey: string } => {
+		const privateKey = /begin/i.test(privKey) ? privKey : `-----BEGIN PRIVATE KEY-----\n${privKey}\n-----END PRIVATE KEY-----`;
+		const privateKeyObject = crypto.createPrivateKey({ key: privateKey, format: 'pem', type: 'pkcs8', passphrase: '' });
+		const pubKeyObject = crypto.createPublicKey(privateKeyObject);
+
+		const publicKey = pubKeyObject
+			.export({
+				format: 'pem',
+				type: 'spki',
+			})
+			.toString();
+		return { publicKey, privateKey: privateKeyObject.export({ format: 'pem', type: 'pkcs8' }).toString() };
+	};
 }
-
-// const privKey = fs.readFileSync('./src/.keys/sandbox_private.key', { encoding: 'utf8' });
-// const pubKey = fs.readFileSync('./src/.keys/sandbox_public.pem', { encoding: 'utf8' });
-
-// const nagad = new Nagad('http://sandbox.mynagad.com:10080', '683002007104225', '01961900400', pubKey, privKey);
-// // nagad
-// // 	.createPayment(`${`${Math.random()}`.replace('0.', '')}`)
-// // 	.then(console.log)
-// // 	.catch(console.log);
-// // // console.log(nagad.date());
 
 export = NagadGateway;

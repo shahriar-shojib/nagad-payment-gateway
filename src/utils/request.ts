@@ -1,4 +1,5 @@
 import fetch from 'node-fetch';
+import { NagadException } from '../exceptions/NagadException';
 
 import { IHeaders } from '../interfaces/headers.interface';
 
@@ -6,19 +7,24 @@ interface IPayload {
 	[key: string]: unknown;
 }
 
-export function get<T>(url: string, additionalHeaders: IHeaders): Promise<T> {
-	return fetch(url, {
+export async function get<T>(url: string, additionalHeaders: IHeaders): Promise<T> {
+	const r = await fetch(url, {
 		method: 'GET',
 		headers: {
 			'content-type': 'application/json',
 			Accept: 'application/json',
 			...additionalHeaders,
 		},
-	}).then((r) => r.json());
+	});
+	const data = await r.json();
+	if (data.reason) {
+		throw new NagadException(data.message);
+	}
+	return data;
 }
 
-export function post<T>(url: string, payload: IPayload = {}, additionalHeaders: IHeaders): Promise<T> {
-	return fetch(url, {
+export async function post<T>(url: string, payload: IPayload = {}, additionalHeaders: IHeaders): Promise<T> {
+	const r = await fetch(url, {
 		headers: {
 			'content-type': 'application/json',
 			Accept: 'application/json',
@@ -26,5 +32,10 @@ export function post<T>(url: string, payload: IPayload = {}, additionalHeaders: 
 		},
 		body: JSON.stringify(payload),
 		method: 'POST',
-	}).then((r) => r.json());
+	});
+	const data = await r.json();
+	if (data.reason) {
+		throw new NagadException(data.message);
+	}
+	return data;
 }
