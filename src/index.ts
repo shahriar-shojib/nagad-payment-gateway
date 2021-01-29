@@ -129,14 +129,10 @@ class NagadGateway {
 			},
 		};
 		const newIP = ip === '::1' || ip === '127.0.0.1' ? '103.100.102.100' : ip;
-		return (await post)<INagadPaymentURL>(
-			`${this.baseURL}/remote-payment-gateway-1.0/api/dfs/check-out/complete/${paymentReferenceId}`,
-			payload,
-			{
-				...this.headers,
-				'X-KM-IP-V4': newIP,
-			}
-		);
+		return await post<INagadPaymentURL>(`${this.baseURL}/remote-payment-gateway-1.0/api/dfs/check-out/complete/${paymentReferenceId}`, payload, {
+			...this.headers,
+			'X-KM-IP-V4': newIP,
+		});
 	};
 
 	private encrypt = <T>(data: T): string => {
