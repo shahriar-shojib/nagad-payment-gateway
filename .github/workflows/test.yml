@@ -37,5 +37,16 @@ jobs:
             - uses: actions/setup-node@v1
               with:
                   node-version: 14
+            - run: mkdir .keys
+            - run: echo $PUBKEY > .keys/public.key
+            - run: echo $PRIVKEY > .keys/private.key
             - run: yarn ci
+            - run: yarn build
             - run: yarn test
+              env:
+                  BASE_URL: ${{secrets.BASE_URL}}
+                  MERCHANT_NUMBER: ${{secrets.MERCHANT_NUMBER}}
+                  MERCHANT_ID: ${{secrets.MERCHANT_ID}}
+                  PUBKEY: ${{secrets.PUBKEY}}
+                  PRIVKEY: ${{secrets.PRIVKEY}}
+
