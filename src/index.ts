@@ -174,10 +174,12 @@ class NagadGateway {
 
 	private genKeys = (privKeyPath: string, pubKeyPath: string): { publicKey: string; privateKey: string } => {
 		const fsPrivKey = fs.readFileSync(privKeyPath, { encoding: 'utf-8' });
-		const privateKey = /begin/i.test(fsPrivKey) ? fsPrivKey : `-----BEGIN PRIVATE KEY-----\n${fsPrivKey}\n-----END PRIVATE KEY-----`;
+		const privateKey = /begin/i.test(fsPrivKey)
+			? fsPrivKey.trim()
+			: `-----BEGIN PRIVATE KEY-----\n${fsPrivKey.trim()}\n-----END PRIVATE KEY-----`;
 
 		const fsPubKey = fs.readFileSync(pubKeyPath, { encoding: 'utf-8' });
-		const publicKey = /begin/i.test(fsPubKey) ? fsPubKey : `-----BEGIN PUBLIC KEY-----\n${fsPubKey}\n-----END PUBLIC KEY-----`;
+		const publicKey = /begin/i.test(fsPubKey) ? fsPubKey.trim() : `-----BEGIN PUBLIC KEY-----\n${fsPubKey.trim()}\n-----END PUBLIC KEY-----`;
 		return { publicKey, privateKey };
 	};
 }
