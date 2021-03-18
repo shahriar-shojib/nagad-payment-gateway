@@ -1,6 +1,6 @@
 {
 	"name": "nagad-payment-gateway",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Nagad Payment Gateway API Library to accept nagad payments on your node.js backend",
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
@@ -25,6 +25,19 @@
 		"prettier": "latest",
 		"typescript": "^4.1.3"
 	},
+	"keywords": [
+		"nodejs",
+		"javascript",
+		"npm",
+		"typescript",
+		"npm-library",
+		"nagad-payment",
+		"nagad",
+		"nagad-gateway",
+		"nagad-api",
+		"nagad-api-library",
+		"nagad-nodejs"
+	],
 	"scripts": {
 		"build": "tsc",
 		"lint": "eslint .",
