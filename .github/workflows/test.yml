@@ -37,7 +37,7 @@ jobs:
             - uses: actions/setup-node@v1
               with:
                   node-version: 14
-            - run: timedatectl set-timezone "Asia/Dhaka"
+            - run: sudo timedatectl set-timezone "Asia/Dhaka"
             - run: yarn ci
             - run: yarn build
             - run: yarn test
