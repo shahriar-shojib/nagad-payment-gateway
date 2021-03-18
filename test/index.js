@@ -2,16 +2,16 @@
 const NagadGateway = require('../dist');
 require('dotenv').config();
 
-const config = {
+const nagad = new NagadGateway({
 	apiVersion: 'v-0.2.0',
 	baseURL: process.env.BASE_URL,
 	callbackURL: process.env.CALLBACK_URL,
 	merchantID: process.env.MERCHANT_ID,
 	merchantNumber: process.env.MERCHANT_NUMBER,
-	privKey: '.keys/private.key',
-	pubKey: '.keys/public.key',
-};
-const nagad = new NagadGateway(config);
+	privKey: process.env.PRIVKEY,
+	pubKey: process.env.PUBKEY,
+	isPath: false,
+});
 
 const paymentConfig = {
 	amount: '100',

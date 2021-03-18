@@ -10,8 +10,9 @@
 		"outDir": "dist",
 		"declaration": true,
 		"rootDir": "src",
-		"incremental": true,
+		"checkJs": false,
 		"pretty": true
 	},
-	"exclude": ["test"]
+
+	"exclude": ["test", "dist"]
 }

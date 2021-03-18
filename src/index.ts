@@ -27,7 +27,7 @@ class NagadGateway {
 	private readonly headers: IHeaders;
 	private readonly callbackURL: string;
 	constructor(config: INagadConstructor) {
-		const { baseURL, callbackURL, merchantID, merchantNumber, privKey, pubKey, apiVersion } = config;
+		const { baseURL, callbackURL, merchantID, merchantNumber, privKey, pubKey, apiVersion, isPath } = config;
 		this.baseURL = baseURL;
 		this.merchantID = merchantID;
 		this.merchantNumber = merchantNumber;
@@ -35,7 +35,7 @@ class NagadGateway {
 			'X-KM-Api-Version': apiVersion,
 		};
 		this.callbackURL = callbackURL;
-		const { privateKey, publicKey } = this.genKeys(privKey, pubKey);
+		const { privateKey, publicKey } = this.genKeys(privKey, pubKey, isPath);
 		this.privKey = privateKey;
 		this.pubKey = publicKey;
 	}
@@ -172,15 +172,22 @@ class NagadGateway {
 		return crypto.createHash('sha1').update(string).digest('hex').toUpperCase();
 	};
 
-	private genKeys = (privKeyPath: string, pubKeyPath: string): { publicKey: string; privateKey: string } => {
+	private genKeys = (privKeyPath: string, pubKeyPath: string, isPath: boolean): { publicKey: string; privateKey: string } => {
+		if (!isPath) {
+			return { publicKey: this.formatKey(pubKeyPath, 'PUBLIC'), privateKey: this.formatKey(privKeyPath, 'PRIVATE') };
+		}
 		const fsPrivKey = fs.readFileSync(privKeyPath, { encoding: 'utf-8' });
-		const privateKey = /begin/i.test(fsPrivKey)
-			? fsPrivKey.trim()
-			: `-----BEGIN PRIVATE KEY-----\n${fsPrivKey.trim()}\n-----END PRIVATE KEY-----`;
-
 		const fsPubKey = fs.readFileSync(pubKeyPath, { encoding: 'utf-8' });
-		const publicKey = /begin/i.test(fsPubKey) ? fsPubKey.trim() : `-----BEGIN PUBLIC KEY-----\n${fsPubKey.trim()}\n-----END PUBLIC KEY-----`;
-		return { publicKey, privateKey };
+		return { publicKey: this.formatKey(fsPubKey, 'PUBLIC'), privateKey: this.formatKey(fsPrivKey, 'PRIVATE') };
+	};
+
+	private formatKey = (key: string, type: 'PUBLIC' | 'PRIVATE'): string => {
+		if (type === 'PRIVATE') {
+			return /begin/i.test(key) ? key.trim() : `-----BEGIN PRIVATE KEY-----\n${key.trim()}\n-----END PRIVATE KEY-----`;
+		}
+		if (type === 'PUBLIC') {
+			return /begin/i.test(key) ? key.trim() : `-----BEGIN PUBLIC KEY-----\n${key.trim()}\n-----END PUBLIC KEY-----`;
+		}
 	};
 }
 
