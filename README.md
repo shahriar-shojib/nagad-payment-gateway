@@ -62,7 +62,7 @@ module.exports = nagad;
 
 ```javascript
 try {
-	const nagadURL = nagad.createPayment({
+	const nagadURL = await nagad.createPayment({
 		// -> get intellisense here
 		amount: '100',
 		ip: '10.10.0.10',
@@ -70,6 +70,17 @@ try {
 		productDetails: { a: '1', b: '2' },
 		clientType: 'PC_WEB',
 	});
+	//redirect user to the nagad url
+} catch (err) {
+	console.log(err);
+}
+```
+
+## Verify a payment
+
+```javascript
+try {
+	const nagadURL = await nagad.verifyPayment(paymentRefID);
 	//redirect user to the nagad url
 } catch (err) {
 	console.log(err);
@@ -93,7 +104,7 @@ try {
 
 > MIT
 
-> DISCLAIMER: This software comes with absolutely no warranty and is not affiliated with the company **`Bkash`** in any way. Use at your own risk. Author and Contributors are not responsible for any financial damages, outages etc.
+> DISCLAIMER: This software comes with absolutely no warranty and is not affiliated with the company **`Nagad`** in any way. Use at your own risk. Author and Contributors are not responsible for any financial damages, outages etc.
 
 ### Author
 
