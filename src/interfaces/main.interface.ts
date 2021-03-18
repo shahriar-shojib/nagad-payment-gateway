@@ -4,11 +4,44 @@ import { IClientType } from './headers.interface';
  * Configuration Required by the NagadGateway Library
  */
 export interface INagadConstructor {
+	/**
+	 * ### Nagad API BaseURL
+	 * @example
+	 * ```
+	 * const baseURL = 'http://sandbox.mynagad.com/remote-payment-gateway'; //no trailing slash
+	 * ```
+	 *
+	 */
 	baseURL: string;
 	merchantID: string;
 	merchantNumber: string;
+	/**
+	 * ### Path to merchant private Key `The keys that you will generate`
+	 * @example
+	 * ```
+	 * const privKeyPath = '.keys/privKey.pem';
+	 * ```
+	 *
+	 */
 	privKey: string;
+
+	/**
+	 * ### Path to nagad's public key `It's Provided by nagad`
+	 * @example
+	 * ```
+	 * const privKeyPath = '.keys/pubKey.pem';
+	 * ```
+	 *
+	 */
+	pubKey: string;
+	/**
+	 * @example
+	 * ```
+	 * const myCallBackURL = 'https://yoursite.com/payment_redirect_handler';
+	 * ```
+	 */
 	callbackURL: string;
+
 	apiVersion: string;
 }
 
@@ -18,6 +51,7 @@ export interface INagadCreatePaymentBody extends Record<string, string> {
 	sensitiveData: string;
 	signature: string;
 }
+
 /**
  * ### Nagad Sensitive Data
  */
@@ -57,8 +91,8 @@ export interface ICreatePaymentArgs {
 	 */
 	amount: string;
 	/**
-	 * Additional Details for product
-	 * Accepts an object
+	 * ### Additional Details for product
+	 * `Accepts an object`
 	 */
 	productDetails: Record<string, string>;
 	/**

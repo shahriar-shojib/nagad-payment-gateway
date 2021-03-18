@@ -10,6 +10,8 @@
 		"outDir": "dist",
 		"declaration": true,
 		"rootDir": "src",
-		"incremental": true
-	}
+		"incremental": true,
+		"pretty": true
+	},
+	"exclude": ["test"]
 }

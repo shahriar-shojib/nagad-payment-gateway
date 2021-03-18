@@ -1,7 +1,7 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import { post, get } from './utils/request';
-import { IHeaders } from './interfaces/headers.interface';
+import { IClientType, IHeaders } from './interfaces/headers.interface';
 
 import {
 	IConfirmPaymentArgs,
@@ -27,7 +27,7 @@ class NagadGateway {
 	private readonly headers: IHeaders;
 	private readonly callbackURL: string;
 	constructor(config: INagadConstructor) {
-		const { baseURL, callbackURL, merchantID, merchantNumber, privKey, apiVersion } = config;
+		const { baseURL, callbackURL, merchantID, merchantNumber, privKey, pubKey, apiVersion } = config;
 		this.baseURL = baseURL;
 		this.merchantID = merchantID;
 		this.merchantNumber = merchantNumber;
@@ -35,7 +35,7 @@ class NagadGateway {
 			'X-KM-Api-Version': apiVersion,
 		};
 		this.callbackURL = callbackURL;
-		const { privateKey, publicKey } = this.genKeys(fs.readFileSync(privKey, { encoding: 'utf-8' }));
+		const { privateKey, publicKey } = this.genKeys(privKey, pubKey);
 		this.privKey = privateKey;
 		this.pubKey = publicKey;
 	}
@@ -55,12 +55,12 @@ class NagadGateway {
 	 * };
 	 * const paymentURL = await nagad .createPayment(paymentConfig);
 	 * ```
-	 * @returns {String} Payment URL for nagad
+	 * @returns `Payment URL for nagad`
 	 *
 	 */
 	async createPayment(createPaymentConfig: ICreatePaymentArgs): Promise<string> {
 		const { amount, ip, orderId, productDetails, clientType } = createPaymentConfig;
-		const endpoint = `${this.baseURL}/remote-payment-gateway-1.0/api/dfs/check-out/initialize/${this.merchantID}/${orderId}`;
+		const endpoint = `${this.baseURL}/api/dfs/check-out/initialize/${this.merchantID}/${orderId}`;
 		const timestamp = this.date();
 
 		const sensitive: INagadSensitiveData = {
@@ -70,24 +70,22 @@ class NagadGateway {
 			challenge: this.createHash(orderId),
 		};
 
-		const signature = this.sign(sensitive);
-
 		const payload: INagadCreatePaymentBody = {
 			accountNumber: this.merchantNumber,
 			dateTime: timestamp,
 			sensitiveData: this.encrypt(sensitive),
-			signature,
+			signature: this.sign(sensitive),
 		};
 
-		const newIP = ip === '::1' ? '103.100.200.100' : ip;
-		console.log(payload);
-		const response = await post<INagadCreatePaymentResponse>(endpoint, payload, {
+		const newIP = ip === '::1' || ip === '127.0.0.1' ? '103.100.200.100' : ip;
+
+		const { sensitiveData } = await post<INagadCreatePaymentResponse>(endpoint, payload, {
 			...this.headers,
 			'X-KM-IP-V4': newIP,
 			'X-KM-Client-Type': clientType,
 		});
-		console.log(response);
-		const decrypted = this.decrypt<INagadCreatePaymentDecryptedResponse>(response.sensitiveData);
+
+		const decrypted = this.decrypt<INagadCreatePaymentDecryptedResponse>(sensitiveData);
 		const { paymentReferenceId, challenge } = decrypted;
 		const confirmArgs: IConfirmPaymentArgs = {
 			paymentReferenceId,
@@ -98,7 +96,7 @@ class NagadGateway {
 			ip: newIP,
 		};
 
-		const { callBackUrl } = await this.confirmPayment(confirmArgs);
+		const { callBackUrl } = await this.confirmPayment(confirmArgs, clientType);
 		return callBackUrl;
 	}
 
@@ -106,11 +104,11 @@ class NagadGateway {
 		//todo
 	};
 
-	verifyPayment = (paymentRefID: string): Promise<INagadPaymentVerificationResponse> => {
-		return get<INagadPaymentVerificationResponse>(`${this.baseURL}/api/dfs/verify/payment/${paymentRefID}`, this.headers);
+	verifyPayment = async (paymentRefID: string): Promise<INagadPaymentVerificationResponse> => {
+		return await get<INagadPaymentVerificationResponse>(`${this.baseURL}/api/dfs/verify/payment/${paymentRefID}`, this.headers);
 	};
 
-	private confirmPayment = async (data: IConfirmPaymentArgs): Promise<INagadPaymentURL> => {
+	private confirmPayment = async (data: IConfirmPaymentArgs, clientType: IClientType): Promise<INagadPaymentURL> => {
 		const { amount, challenge, ip, orderId, paymentReferenceId, productDetails } = data;
 		const sensitiveData = {
 			merchantId: this.merchantID,
@@ -129,9 +127,10 @@ class NagadGateway {
 			},
 		};
 		const newIP = ip === '::1' || ip === '127.0.0.1' ? '103.100.102.100' : ip;
-		return await post<INagadPaymentURL>(`${this.baseURL}/remote-payment-gateway-1.0/api/dfs/check-out/complete/${paymentReferenceId}`, payload, {
+		return await post<INagadPaymentURL>(`${this.baseURL}/api/dfs/check-out/complete/${paymentReferenceId}`, payload, {
 			...this.headers,
 			'X-KM-IP-V4': newIP,
+			'X-KM-Client-Type': clientType,
 		});
 	};
 
@@ -159,30 +158,27 @@ class NagadGateway {
 	};
 
 	private date = (): string => {
-		const now = new Date(Date.now());
+		const now = new Date();
 		const day = `${now.getDate()}`.length === 1 ? `0${now.getDate()}` : `${now.getDate()}`;
 		const hour = `${now.getHours()}`.length === 1 ? `0${now.getHours()}` : `${now.getHours()}`;
 		const minute = `${now.getMinutes()}`.length === 1 ? `0${now.getMinutes()}` : `${now.getMinutes()}`;
 		const second = `${now.getSeconds()}`.length === 1 ? `0${now.getSeconds()}` : `${now.getSeconds()}`;
-		return `${now.getFullYear()}${now.getMonth() + 1}${day}${hour}${minute}${second}`;
+		const month = now.getMonth() + 1 < 10 ? `0${now.getMonth() + 1}` : `${now.getMonth()}`;
+		const year = now.getFullYear();
+		return `${year}${month}${day}${hour}${minute}${second}`;
 	};
 
 	private createHash = (string: string): string => {
 		return crypto.createHash('sha1').update(string).digest('hex').toUpperCase();
 	};
 
-	private genKeys = (privKey: string): { publicKey: string; privateKey: string } => {
-		const privateKey = /begin/i.test(privKey) ? privKey : `-----BEGIN PRIVATE KEY-----\n${privKey}\n-----END PRIVATE KEY-----`;
-		const privateKeyObject = crypto.createPrivateKey({ key: privateKey, format: 'pem', type: 'pkcs8', passphrase: '' });
-		const pubKeyObject = crypto.createPublicKey(privateKeyObject);
+	private genKeys = (privKeyPath: string, pubKeyPath: string): { publicKey: string; privateKey: string } => {
+		const fsPrivKey = fs.readFileSync(privKeyPath, { encoding: 'utf-8' });
+		const privateKey = /begin/i.test(fsPrivKey) ? fsPrivKey : `-----BEGIN PRIVATE KEY-----\n${fsPrivKey}\n-----END PRIVATE KEY-----`;
 
-		const publicKey = pubKeyObject
-			.export({
-				format: 'pem',
-				type: 'spki',
-			})
-			.toString();
-		return { publicKey, privateKey: privateKeyObject.export({ format: 'pem', type: 'pkcs8' }).toString() };
+		const fsPubKey = fs.readFileSync(pubKeyPath, { encoding: 'utf-8' });
+		const publicKey = /begin/i.test(fsPubKey) ? fsPubKey : `-----BEGIN PUBLIC KEY-----\n${fsPubKey}\n-----END PUBLIC KEY-----`;
+		return { publicKey, privateKey };
 	};
 }
 
