@@ -1,5 +1,7 @@
 # nagad-payment-gateway
 
+[![Test Suite](https://github.com/shahriar-shojib/nagad-payment-gateway/actions/workflows/test.yml/badge.svg)](https://github.com/shahriar-shojib/nagad-payment-gateway/actions/workflows/test.yml)
+
 Nodejs library to accept nagad payments on your backend application
 
 ## Features
