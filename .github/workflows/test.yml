@@ -33,13 +33,11 @@ jobs:
         name: Run tests
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/set-timezone-action@v1.1
-              with:
-                timezoneLinux: "Asia/Dhaka"
             - uses: actions/checkout@v2
             - uses: actions/setup-node@v1
               with:
                   node-version: 14
+            - run: timedatectl set-timezone "Asia/Dhaka"
             - run: yarn ci
             - run: yarn build
             - run: yarn test
