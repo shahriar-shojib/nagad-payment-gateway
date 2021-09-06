@@ -2,26 +2,20 @@
 	"compilerOptions": {
 		"target": "ES2020",
 		"skipLibCheck": true,
-		"module": "ES2020",
 		"outDir": "dist",
 		"declaration": true,
 		"checkJs": false,
-		"allowSyntheticDefaultImports": true,
-		"esModuleInterop": true,
 		"alwaysStrict": true,
 		"strict": true,
 		"strictNullChecks": true,
 		"incremental": true,
 		"sourceMap": true,
-		"importHelpers": true,
-		"moduleResolution": "classic",
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"noFallthroughCasesInSwitch": true,
 		"noImplicitAny": true,
+		"module": "ES2020",
 	},
-
-
 	"include": ["src/**/*.ts"],
-	"exclude": ["test", "dist"]
+	"exclude": ["test/**/*.js", "dist/**/*.js"]
 }

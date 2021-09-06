@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 import NagadGateway from '../dist/index.js';
 import { config } from 'dotenv';
 config();

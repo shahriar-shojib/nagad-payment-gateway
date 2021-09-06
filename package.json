@@ -2,7 +2,7 @@
 	"name": "nagad-payment-gateway",
 	"version": "1.0.1",
 	"description": "Nagad Payment Gateway API Library to accept nagad payments on your node.js backend",
-	"exports": "./dist/index.js",
+	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"files": [
 		"dist"
@@ -12,6 +12,7 @@
 		"type": "git",
 		"url": "https://github.com/shahriar-shojib/nagad-payment-gateway.git"
 	},
+	"type": "module",
 	"author": "Shahriar Shojib <shahriar_shojib@hotmail.com>",
 	"license": "MIT",
 	"devDependencies": {
@@ -21,9 +22,9 @@
 		"dotenv": "^10.0.0",
 		"eslint": "^7.32.0",
 		"prettier": "^2.3.2",
+		"tslib": "^2.3.1",
 		"typescript": "^4.4.2"
 	},
-	"type": "module",
 	"keywords": [
 		"nodejs",
 		"javascript",

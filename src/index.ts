@@ -36,6 +36,7 @@ export class NagadGateway {
 		};
 		this.callbackURL = callbackURL;
 		const { privateKey, publicKey } = this.genKeys(privKey, pubKey, isPath);
+		console.log({ privateKey, publicKey });
 		this.privKey = privateKey;
 		this.pubKey = publicKey;
 	}
