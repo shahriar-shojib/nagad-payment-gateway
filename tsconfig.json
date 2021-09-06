@@ -1,18 +1,27 @@
 {
 	"compilerOptions": {
-		"target": "es2017",
-		"allowSyntheticDefaultImports": true,
-		"allowJs": true,
+		"target": "ES2020",
 		"skipLibCheck": true,
-		"module": "CommonJS",
-		"moduleResolution": "node",
-		"esModuleInterop": true,
+		"module": "ES2020",
 		"outDir": "dist",
 		"declaration": true,
-		"rootDir": "src",
 		"checkJs": false,
-		"pretty": true
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
+		"alwaysStrict": true,
+		"strict": true,
+		"strictNullChecks": true,
+		"incremental": true,
+		"sourceMap": true,
+		"importHelpers": true,
+		"moduleResolution": "classic",
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitAny": true,
 	},
 
+
+	"include": ["src/**/*.ts"],
 	"exclude": ["test", "dist"]
 }

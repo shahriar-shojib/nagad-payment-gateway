@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const NagadGateway = require('../dist');
-require('dotenv').config();
+import NagadGateway from '../dist/index.js';
+import { config } from 'dotenv';
+config();
 
 const nagad = new NagadGateway({
 	apiVersion: 'v-0.2.0',
