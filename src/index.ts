@@ -28,7 +28,7 @@ export class NagadGateway {
 	private readonly callbackURL: string;
 
 	constructor(config: INagadConstructor) {
-		const { baseURL, callbackURL, merchantID, merchantNumber, privKey, pubKey, apiVersion } = config;
+		const { baseURL, callbackURL, merchantID, merchantNumber, privKey, pubKey, apiVersion, isPath } = config;
 		this.baseURL = baseURL;
 		this.merchantID = merchantID;
 		this.merchantNumber = merchantNumber;
@@ -36,7 +36,7 @@ export class NagadGateway {
 			'X-KM-Api-Version': apiVersion,
 		};
 		this.callbackURL = callbackURL;
-		const { privateKey, publicKey } = this.genKeys(privKey, pubKey);
+		const { privateKey, publicKey } = this.genKeys(privKey, pubKey, isPath);
 		this.privKey = privateKey;
 		this.pubKey = publicKey;
 	}
@@ -171,7 +171,14 @@ export class NagadGateway {
 		return crypto.createHash('sha1').update(string).digest('hex').toUpperCase();
 	}
 
-	private genKeys(privKeyPath: string, pubKeyPath: string): { publicKey: string; privateKey: string } {
+	private genKeys(privKeyPath: string, pubKeyPath: string, isPath: boolean): { publicKey: string; privateKey: string } {
+		if (!isPath) {
+			return {
+				privateKey: this.formatKey(privKeyPath, 'PRIVATE'),
+				publicKey: this.formatKey(pubKeyPath, 'PUBLIC'),
+			};
+		}
+
 		const fsPrivKey = fs.readFileSync(privKeyPath, { encoding: 'utf-8' });
 		const fsPubKey = fs.readFileSync(pubKeyPath, { encoding: 'utf-8' });
 		return { publicKey: this.formatKey(fsPubKey, 'PUBLIC'), privateKey: this.formatKey(fsPrivKey, 'PRIVATE') };
