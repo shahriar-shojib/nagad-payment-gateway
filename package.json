@@ -58,9 +58,11 @@
 		"formatcheck": "prettier -c .",
 		"format": "prettier --write .",
 		"test": "jest",
-		"ci": "yarn --frozen-lockfile"
+		"ci": "yarn --frozen-lockfile",
+		"release": "changeset publish"
 	},
 	"dependencies": {
+		"@changesets/cli": "^2.24.3",
 		"node-fetch": "^2.6.7"
 	},
 	"jest": {
