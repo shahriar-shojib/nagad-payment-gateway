@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { config } from 'dotenv';
-import { readFileSync } from 'fs';
 import { NagadGateway } from '..';
 config();
 
@@ -10,8 +9,8 @@ const nagad = new NagadGateway({
 	callbackURL: process.env.CALLBACK_URL!,
 	merchantID: process.env.MERCHANT_ID!,
 	merchantNumber: process.env.MERCHANT_NUMBER!,
-	privKey: readFileSync(process.env.PRIVKEY!, 'utf8'),
-	pubKey: readFileSync(process.env.PUBKEY!, 'utf8'),
+	privKey: process.env.PRIVKEY!,
+	pubKey: process.env.PUBKEY!,
 	isPath: false,
 });
 
