@@ -23,6 +23,8 @@ describe('Nagad Gateway', () => {
 			productDetails: { a: '1', b: '2' },
 			clientType: 'PC_WEB',
 		});
-		console.log(paymentURL);
+
+		expect(paymentURL).toBeDefined();
+		expect(paymentURL.includes('http://sandbox.mynagad.com:10060/check-out/')).toBe(true);
 	});
 });
