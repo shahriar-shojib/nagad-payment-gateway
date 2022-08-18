@@ -4,15 +4,17 @@
 		"allowSyntheticDefaultImports": true,
 		"allowJs": true,
 		"skipLibCheck": true,
-		"module": "CommonJS",
 		"moduleResolution": "node",
 		"esModuleInterop": true,
 		"outDir": "dist",
 		"declaration": true,
 		"rootDir": "src",
-		"checkJs": false,
-		"pretty": true
+		"strict": true,
+		"strictBindCallApply": true,
+		"strictFunctionTypes": true,
+		"strictNullChecks": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true
 	},
-
-	"exclude": ["test", "dist"]
+	"include": ["src/**/*.ts"]
 }

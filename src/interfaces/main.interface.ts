@@ -43,7 +43,6 @@ export interface INagadConstructor {
 	callbackURL: string;
 
 	apiVersion: string;
-	isPath: boolean;
 }
 
 export interface INagadCreatePaymentBody extends Record<string, string> {
