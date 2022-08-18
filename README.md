@@ -1,16 +1,16 @@
 # nagad-payment-gateway
 
 [![Test Suite](https://github.com/shahriar-shojib/nagad-payment-gateway/actions/workflows/test.yml/badge.svg)](https://github.com/shahriar-shojib/nagad-payment-gateway/actions/workflows/test.yml)
-[![Publish to NPM](https://github.com/shahriar-shojib/nagad-payment-gateway/actions/workflows/publish.yml/badge.svg)](https://github.com/shahriar-shojib/nagad-payment-gateway/actions/workflows/publish.yml)
+[![Publish to NPM](https://github.com/shahriar-shojib/nagad-payment-gateway/actions/workflows/publish.yml/badge.svg)](https://github.com/shahriar-shojib/nagad-payment-gateway/actions/workflows/release.yml)
 
 Nodejs library to accept nagad payments on your backend application
 
 ## Features
 
--   Written in Typescript
--   No headaches when doing cryptographic operations, everything is handled inside the library.
--   Get Intellisense with vscode to avoid errors
--   Type definitions included, and all the documentation is provided as `TSDoc` comments
+- Written in Typescript
+- No headaches when doing cryptographic operations, everything is handled inside the library.
+- Get Intellisense with vscode to avoid errors
+- Type definitions included, and all the documentation is provided as `TSDoc` comments
 
 ---
 
@@ -46,6 +46,7 @@ const config = {
 	merchantNumber: process.env.MERCHANT_NUMBER,
 	privKey: '.keys/private.key',
 	pubKey: '.keys/public.key',
+	isPath: true,
 };
 const nagad = new NagadGateway(config);
 
@@ -93,10 +94,10 @@ try {
 
 ### Contributing
 
--   Please Follow the code style and use the prettier config and eslint config provided in the repository
--   Feel free to open `issues` or `pull request` for any issues and bugfixes
--   If you want to implement new features or write documentation about existing features feel free to do it as well
--   To see a list of missing features or to-do's, please visit the `project` section of the github repository
+- Please Follow the code style and use the prettier config and eslint config provided in the repository
+- Feel free to open `issues` or `pull request` for any issues and bugfixes
+- If you want to implement new features or write documentation about existing features feel free to do it as well
+- To see a list of missing features or to-do's, please visit the `project` section of the github repository
 
 ---
 

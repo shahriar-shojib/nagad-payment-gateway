@@ -1,7 +1,7 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs';
-import { post, get } from './utils/request';
 import { IClientType, IHeaders } from './interfaces/headers.interface';
+import { get, post } from './utils/request';
 
 import {
 	IConfirmPaymentArgs,
@@ -18,7 +18,7 @@ import {
 	INagadPaymentVerificationResponse,
 } from './interfaces/nagadResponse.interface';
 
-class NagadGateway {
+export class NagadGateway {
 	private readonly baseURL: string;
 	private readonly merchantID: string;
 	private readonly merchantNumber: string;
@@ -26,6 +26,7 @@ class NagadGateway {
 	private readonly privKey: string;
 	private readonly headers: IHeaders;
 	private readonly callbackURL: string;
+
 	constructor(config: INagadConstructor) {
 		const { baseURL, callbackURL, merchantID, merchantNumber, privKey, pubKey, apiVersion, isPath } = config;
 		this.baseURL = baseURL;
@@ -61,7 +62,7 @@ class NagadGateway {
 	async createPayment(createPaymentConfig: ICreatePaymentArgs): Promise<string> {
 		const { amount, ip, orderId, productDetails, clientType } = createPaymentConfig;
 		const endpoint = `${this.baseURL}/api/dfs/check-out/initialize/${this.merchantID}/${orderId}`;
-		const timestamp = this.date();
+		const timestamp = this.getTimeStamp();
 
 		const sensitive: INagadSensitiveData = {
 			merchantId: this.merchantID,
@@ -100,13 +101,12 @@ class NagadGateway {
 		return callBackUrl;
 	}
 
-	handleCallBack = (): void => {
-		//todo
-	};
-
-	verifyPayment = async (paymentRefID: string): Promise<INagadPaymentVerificationResponse> => {
-		return await get<INagadPaymentVerificationResponse>(`${this.baseURL}/api/dfs/verify/payment/${paymentRefID}`, this.headers);
-	};
+	async verifyPayment(paymentRefID: string): Promise<INagadPaymentVerificationResponse> {
+		return await get<INagadPaymentVerificationResponse>(
+			`${this.baseURL}/api/dfs/verify/payment/${paymentRefID}`,
+			this.headers
+		);
+	}
 
 	private confirmPayment = async (data: IConfirmPaymentArgs, clientType: IClientType): Promise<INagadPaymentURL> => {
 		const { amount, challenge, ip, orderId, paymentReferenceId, productDetails } = data;
@@ -134,30 +134,29 @@ class NagadGateway {
 		});
 	};
 
-	private encrypt = <T>(data: T): string => {
+	private encrypt<T>(data: T): string {
 		const signerObject = crypto.publicEncrypt(
 			{ key: this.pubKey, padding: crypto.constants.RSA_PKCS1_PADDING },
 			Buffer.from(JSON.stringify(data))
 		);
 		return signerObject.toString('base64');
-	};
+	}
 
-	private decrypt = <T>(data: string): T => {
-		const decrtypted = crypto
+	private decrypt<T>(data: string): T {
+		const decrypted = crypto
 			.privateDecrypt({ key: this.privKey, padding: crypto.constants.RSA_PKCS1_PADDING }, Buffer.from(data, 'base64'))
 			.toString();
-		return JSON.parse(decrtypted);
-	};
+		return JSON.parse(decrypted);
+	}
 
-	private sign = (data: string | Record<string, string>): string => {
+	private sign(data: string | Record<string, string>) {
 		const signerObject = crypto.createSign('SHA256');
 		signerObject.update(JSON.stringify(data));
 		signerObject.end();
-		const signed = signerObject.sign(this.privKey, 'base64');
-		return signed;
-	};
+		return signerObject.sign(this.privKey, 'base64');
+	}
 
-	private date = (): string => {
+	private getTimeStamp() {
 		const now = new Date();
 		const day = `${now.getDate()}`.length === 1 ? `0${now.getDate()}` : `${now.getDate()}`;
 		const hour = `${now.getHours()}`.length === 1 ? `0${now.getHours()}` : `${now.getHours()}`;
@@ -166,29 +165,28 @@ class NagadGateway {
 		const month = now.getMonth() + 1 < 10 ? `0${now.getMonth() + 1}` : `${now.getMonth()}`;
 		const year = now.getFullYear();
 		return `${year}${month}${day}${hour}${minute}${second}`;
-	};
+	}
 
-	private createHash = (string: string): string => {
+	private createHash(string: string): string {
 		return crypto.createHash('sha1').update(string).digest('hex').toUpperCase();
-	};
+	}
 
-	private genKeys = (privKeyPath: string, pubKeyPath: string, isPath: boolean): { publicKey: string; privateKey: string } => {
+	private genKeys(privKeyPath: string, pubKeyPath: string, isPath: boolean): { publicKey: string; privateKey: string } {
 		if (!isPath) {
-			return { publicKey: this.formatKey(pubKeyPath, 'PUBLIC'), privateKey: this.formatKey(privKeyPath, 'PRIVATE') };
+			return {
+				privateKey: this.formatKey(privKeyPath, 'PRIVATE'),
+				publicKey: this.formatKey(pubKeyPath, 'PUBLIC'),
+			};
 		}
+
 		const fsPrivKey = fs.readFileSync(privKeyPath, { encoding: 'utf-8' });
 		const fsPubKey = fs.readFileSync(pubKeyPath, { encoding: 'utf-8' });
 		return { publicKey: this.formatKey(fsPubKey, 'PUBLIC'), privateKey: this.formatKey(fsPrivKey, 'PRIVATE') };
-	};
+	}
 
-	private formatKey = (key: string, type: 'PUBLIC' | 'PRIVATE'): string => {
-		if (type === 'PRIVATE') {
-			return /begin/i.test(key) ? key.trim() : `-----BEGIN PRIVATE KEY-----\n${key.trim()}\n-----END PRIVATE KEY-----`;
-		}
-		if (type === 'PUBLIC') {
-			return /begin/i.test(key) ? key.trim() : `-----BEGIN PUBLIC KEY-----\n${key.trim()}\n-----END PUBLIC KEY-----`;
-		}
-	};
+	private formatKey(key: string, type: 'PUBLIC' | 'PRIVATE') {
+		return /begin/i.test(key) ? key.trim() : `-----BEGIN ${type} KEY-----\n${key.trim()}\n-----END ${type} KEY-----`;
+	}
 }
 
-export = NagadGateway;
+export default NagadGateway;

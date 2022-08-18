@@ -1,6 +1,5 @@
 import fetch from 'node-fetch';
 import { NagadException } from '../exceptions/NagadException';
-
 import { IHeaders } from '../interfaces/headers.interface';
 
 interface IPayload {

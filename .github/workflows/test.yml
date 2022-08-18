@@ -7,30 +7,8 @@ on:
         branches: [master]
 
 jobs:
-    build:
-        name: Test for build Errors
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v2
-            - uses: actions/setup-node@v1
-              with:
-                  node-version: 14
-            - run: yarn ci
-            - run: yarn build
-
-    lint_check:
-        name: Check for linting and formatting issues
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v2
-            - uses: actions/setup-node@v1
-              with:
-                  node-version: 14
-            - run: yarn ci
-            - run: yarn lint
-            - run: yarn formatcheck
     test:
-        name: Run tests
+        name: Test 
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
@@ -39,6 +17,8 @@ jobs:
                   node-version: 14
             - run: sudo timedatectl set-timezone "Asia/Dhaka"
             - run: yarn ci
+            - run: yarn lint
+            - run: yarn formatcheck
             - run: yarn build
             - run: yarn test
               env:
@@ -47,4 +27,6 @@ jobs:
                   MERCHANT_ID: ${{secrets.MERCHANT_ID}}
                   PUBKEY: ${{secrets.PUBKEY}}
                   PRIVKEY: ${{secrets.PRIVKEY}}
+
+
 
