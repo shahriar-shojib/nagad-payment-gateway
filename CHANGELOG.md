@@ -1,5 +1,11 @@
 # nagad-payment-gateway
 
+## 2.0.1
+
+### Patch Changes
+
+- [`40f46ad`](https://github.com/shahriar-shojib/nagad-payment-gateway/commit/40f46ade4cda7cd7d50046ab8ae932a9073aa44e) Thanks [@shahriar-shojib](https://github.com/shahriar-shojib)! - fix: run build before publish
+
 ## 2.0.0
 
 ### Major Changes
