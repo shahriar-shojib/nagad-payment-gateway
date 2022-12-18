@@ -1,32 +1,28 @@
 name: Test Suite
 
 on:
-    push:
-        branches: [master]
-    pull_request:
-        branches: [master]
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
 
 jobs:
-    test:
-        name: Test 
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v2
-            - uses: actions/setup-node@v1
-              with:
-                  node-version: 14
-            - run: sudo timedatectl set-timezone "Asia/Dhaka"
-            - run: yarn ci
-            - run: yarn lint
-            - run: yarn formatcheck
-            - run: yarn build
-            - run: yarn test
-              env:
-                  BASE_URL: ${{secrets.BASE_URL}}
-                  MERCHANT_NUMBER: ${{secrets.MERCHANT_NUMBER}}
-                  MERCHANT_ID: ${{secrets.MERCHANT_ID}}
-                  PUBKEY: ${{secrets.PUBKEY}}
-                  PRIVKEY: ${{secrets.PRIVKEY}}
-
-
-
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - run: yarn ci
+      - run: yarn lint
+      - run: yarn formatcheck
+      - run: yarn build
+      - run: yarn test
+        env:
+          BASE_URL: ${{ secrets.BASE_URL }}
+          MERCHANT_NUMBER: ${{ secrets.MERCHANT_NUMBER }}
+          MERCHANT_ID: ${{ secrets.MERCHANT_ID }}
+          PUBKEY: ${{ secrets.PUBKEY }}
+          PRIVKEY: ${{ secrets.PRIVKEY }}

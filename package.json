@@ -64,6 +64,7 @@
 		"release": "changeset publish"
 	},
 	"dependencies": {
+		"dayjs": "^1.11.7",
 		"node-fetch": "^2.6.7"
 	},
 	"jest": {

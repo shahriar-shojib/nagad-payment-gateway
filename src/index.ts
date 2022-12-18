@@ -11,6 +11,10 @@ import {
 	INagadSensitiveData,
 } from './interfaces/main.interface';
 
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+
 import {
 	INagadCreatePaymentDecryptedResponse,
 	INagadCreatePaymentResponse,
@@ -39,6 +43,9 @@ export class NagadGateway {
 		const { privateKey, publicKey } = this.genKeys(privKey, pubKey, isPath);
 		this.privKey = privateKey;
 		this.pubKey = publicKey;
+
+		dayjs.extend(utc);
+		dayjs.extend(timezone);
 	}
 
 	/**
@@ -108,7 +115,7 @@ export class NagadGateway {
 		);
 	}
 
-	private confirmPayment = async (data: IConfirmPaymentArgs, clientType: IClientType): Promise<INagadPaymentURL> => {
+	private async confirmPayment(data: IConfirmPaymentArgs, clientType: IClientType): Promise<INagadPaymentURL> {
 		const { amount, challenge, ip, orderId, paymentReferenceId, productDetails } = data;
 		const sensitiveData = {
 			merchantId: this.merchantID,
@@ -132,7 +139,7 @@ export class NagadGateway {
 			'X-KM-IP-V4': newIP,
 			'X-KM-Client-Type': clientType,
 		});
-	};
+	}
 
 	private encrypt<T>(data: T): string {
 		const signerObject = crypto.publicEncrypt(
@@ -157,16 +164,9 @@ export class NagadGateway {
 	}
 
 	private getTimeStamp() {
-		const now = new Date();
-		const timezoneOffset = now.getTimezoneOffset();
-		now.setMinutes(now.getMinutes() - (timezoneOffset + 360)); // TimeZone UTC+6 Correction
-		const day = now.getDate().toString().padStart(2, '0');
-		const hour = now.getHours().toString().padStart(2, '0');
-		const minute = now.getMinutes().toString().padStart(2, '0');
-		const second = now.getSeconds().toString().padStart(2, '0');
-		const month = (now.getMonth() + 1).toString().padStart(2, '0');
-		const year = now.getFullYear().toString();
-		return `${year}${month}${day}${hour}${minute}${second}`;
+		const timestamp = dayjs().tz('Asia/Dhaka').format('YYYYMMDDHHmmss');
+
+		return timestamp;
 	}
 
 	private createHash(string: string): string {
