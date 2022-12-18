@@ -16,8 +16,11 @@ export async function get<T>(url: string, additionalHeaders: IHeaders): Promise<
 		},
 	});
 	const data = await r.json();
+	if (data.devMessage) {
+		throw new NagadException(data.devMessage);
+	}
 	if (data.reason) {
-		throw new NagadException(data.message);
+		throw new NagadException(data.reason);
 	}
 	return data;
 }
@@ -33,8 +36,11 @@ export async function post<T>(url: string, payload: IPayload = {}, additionalHea
 		method: 'POST',
 	});
 	const data = await r.json();
+	if (data.devMessage) {
+		throw new NagadException(data.devMessage);
+	}
 	if (data.reason) {
-		throw new NagadException(data.message);
+		throw new NagadException(data.reason);
 	}
 	return data;
 }
