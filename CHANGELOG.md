@@ -1,5 +1,11 @@
 # nagad-payment-gateway
 
+## 2.0.2
+
+### Patch Changes
+
+- [`e562efc`](https://github.com/shahriar-shojib/nagad-payment-gateway/commit/e562efc3289cae50dba20237336355e9b420062b) Thanks [@shahriar-shojib](https://github.com/shahriar-shojib)! - Fixed timezone issue
+
 ## 2.0.1
 
 ### Patch Changes
