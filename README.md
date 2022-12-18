@@ -35,8 +35,7 @@ Nodejs library to accept nagad payments on your backend application
 > file `nagad.js`
 
 ```javascript
-/* eslint-disable @typescript-eslint/no-var-requires */
-const NagadGateway = require('nagad-payment-gateway');
+const { NagadGateway } = require('nagad-payment-gateway');
 
 const config = {
 	apiVersion: 'v-0.2.0',
@@ -48,6 +47,7 @@ const config = {
 	pubKey: '.keys/public.key',
 	isPath: true,
 };
+
 const nagad = new NagadGateway(config);
 
 module.exports = nagad;
